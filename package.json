@@ -1,0 +1,41 @@
+{
+  "name": "greedy-mesher",
+  "version": "0.0.0",
+  "description": "Greedy mesh compiler",
+  "main": "greedy.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "generic-slice": "~0.0.1",
+    "inlinify": "~0.0.3",
+    "ndarray": "~0.2.4",
+    "typedarray-pool": "~0.1.1",
+    "uniq": "~0.0.2"
+  },
+  "devDependencies": {
+    "ndarray-pack": "~0.0.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mikolalysenko/greedy-mesher.git"
+  },
+  "keywords": [
+    "greedy",
+    "mesh",
+    "compiler",
+    "voxel",
+    "geometry",
+    "ndarray"
+  ],
+  "author": "Mikola Lysenko",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "gitHead": "154f0e316690fccce1148d4622c9274bbeec4401",
+  "bugs": {
+    "url": "https://github.com/mikolalysenko/greedy-mesher/issues"
+  }
+}
