@@ -5,56 +5,20 @@ var pool = require("typedarray-pool")
 var inline = require("inlinify")
 var uniq = require("uniq")
 var genericSlice = require("generic-slice")
+var iota = require("iota-array")
 
-function wrap_0(proc) {
-  return function shim(array) {
-    var size = ndarray.size(array)
-    var visited = pool.mallocUint8(size)
-    var result = proc(array.data, array.shape, array.stride, array.offset, visited, size)
-    pool.freeUint8(visited)
-    return result
-  }
-}
-
-function wrap_1(proc) {
-  return function shim(array, opt0) {
-    var size = ndarray.size(array)
-    var visited = pool.mallocUint8(size)
-    var result = proc(array.data, array.shape, array.stride, array.offset, visited, size, opt0)
-    pool.freeUint8(visited)
-    return result
-  }
-}
-
-function wrap_2(proc) {
-  return function shim(array, opt0, opt1) {
-    var size = ndarray.size(array)
-    var visited = pool.mallocUint8(size)
-    var result = proc(array.data, array.shape, array.stride, array.offset, visited, size, opt0, opt1)
-    pool.freeUint8(visited)
-    return result
-  }
-}
-
-function wrap_3(proc) {
-  return function shim(array, opt0, opt1, opt2) {
-    var size = ndarray.size(array)
-    var visited = pool.mallocUint8(size)
-    var result = proc(array.data, array.shape, array.stride, array.offset, visited, size, opt0, opt1, opt2)
-    pool.freeUint8(visited)
-    return result
-  }
-}
-
-function wrap_n(proc) {
-  return function shim(array) {
-    var size = ndarray.size(array)
-    var visited = pool.mallocUint8(size)
-    var args = genericSlice(arguments, 1)
-    var result = proc.apply(undefined, [array.data, array.shape, array.stride, array.offset, visited, size].concat(args))
-    pool.freeUint8(visited)
-    return result
-  }
+function wrap(proc, num_opts) {
+  var opts = iota(num_opts).map(function(i) { return "opt" + i })
+  var args = [ "proc", "ndarray", "pool", "array" ]
+  var body = [
+    "var size = ndarray.size(array)",
+    "var visited = pool.mallocUint8(size)",
+    "var result = proc(array.data, array.shape, array.stride, array.offset, visited, size" + (num_opts > 0 ? ","+opts.join(",")  : "") + ")",
+    "pool.freeUint8(visited)",
+    "return result"
+  ].join("\n")
+  var func = Function.apply(undefined, [].concat(args).concat(opts).concat([body]))
+  return func.bind(undefined, proc, ndarray, pool)
 }
 
 function generateMesher(order, pre, post, skip, merge, append, num_options, options) {
@@ -133,36 +97,24 @@ function generateMesher(order, pre, post, skip, merge, append, num_options, opti
   }
   
   //Combine this variables, add to result
-  var combined_this = [].concat(pre_macro.this_variables)
+  var combined_vars = [ pre_macro.return_variable,
+                        post_macro.return_variable,
+                        skip_macro.return_variable,
+                        merge_macro.return_variable,
+                        append_macro.return_variable ]
+                        .concat(pre_macro.this_variables)
                         .concat(post_macro.this_variables)
                         .concat(skip_macro.this_variables)
                         .concat(merge_macro.this_variables)
                         .concat(append_macro.this_variables)
-  combined_this.sort()
-  uniq(combined_this)
-  code.push("var " + combined_this.join(","))
-
-  //Add macro variables to local scope
-  if(pre_macro.variables.length > 0) {
-    code.push("var " + pre_macro.variables.join(","))
-  }
-  code.push("var " + pre_macro.return_variable)
-  if(post_macro.variables.length > 0) {
-    code.push("var " + post_macro.variables.join(","))
-  }
-  code.push("var " + post_macro.return_variable)
-  if(skip_macro.variables.length > 0) {
-    code.push("var " + skip_macro.variables.join(","))
-  }
-  code.push("var " + skip_macro.return_variable)
-  if(merge_macro.variables.length > 0) {
-    code.push("var " + merge_macro.variables.join(","))
-  }
-  code.push("var " + merge_macro.return_variable)
-  if(append_macro.variables.length > 0) {
-    code.push("var " + append_macro.variables.join(","))
-  }
-  code.push("var " + append_macro.return_variable)
+                        .concat(pre_macro.variables)
+                        .concat(post_macro.variables)
+                        .concat(skip_macro.variables)
+                        .concat(merge_macro.variables)
+                        .concat(append_macro.variables)
+  code.push("var " + uniq(combined_vars).join(","))
+  
+  code.push("var d")
   
   //Unpack stride and shape arrays into variables
   for(var i=0; i<d; ++i) {
@@ -193,7 +145,7 @@ function generateMesher(order, pre, post, skip, merge, append, num_options, opti
   code.push("var val")
   code.push("var oval")
   
-  //Run pre macro
+  //Paste in premacro
   code.push(pre_macro.body)
   
   //Zero out visited map
@@ -223,26 +175,28 @@ function generateMesher(order, pre, post, skip, merge, append, num_options, opti
           code.push("for(k"+j+"=i"+j+";k"+j+"<j"+j+";++k"+j+"){")
         }
         
-        //Check if we can merge this voxel
-        code.push("if(visited[u_ptr]) { break j"+i+"_loop; }")
-        code.push("val=data[b_ptr]")
-        code.push(skip_macro.body)
-        code.push("if("+skip_macro.return_variable+") { break j"+i+"_loop; }")
-        code.push(merge_macro.body)
-        code.push("if(!"+merge_macro.return_variable+") { break j"+i+"_loop; }")
-        
-        //Close off loop bodies
-        code.push("++u_ptr")
-        code.push("b_ptr+=stride0")
+          //Check if we can merge this voxel
+          code.push("if(visited[u_ptr]) { console.log('here1'); break j"+i+"_loop; }")
+          code.push("val=data[b_ptr]")
+          code.push(skip_macro.body)
+          code.push("if("+skip_macro.return_variable+") { break j"+i+"_loop; }")
+          code.push(merge_macro.body)
+          code.push("if(!"+merge_macro.return_variable+") { break j"+i+"_loop; }")
+          
+          //Close off loop bodies
+          code.push("++u_ptr")
+          code.push("b_ptr+=stride0")
         code.push("}")
+        
         for(j=1; j<=i; ++j) {
           code.push("u_ptr+=ustep"+j)
           code.push("b_ptr+=bstep"+j)
           code.push("}")
         }
         if(i < d-1) {
-          code.push("ustep"+(i+1)+"=(vstep"+(i+1)+"-vstep"+i+"*j"+i+")|0")
-          code.push("bstep"+(i+1)+"=(stride"+(i+1)+"-stride"+i+"*j"+i+")|0")
+          code.push("d=j"+i+"-i"+i)
+          code.push("ustep"+(i+1)+"=(vstep"+(i+1)+"-vstep"+i+"*d)|0")
+          code.push("bstep"+(i+1)+"=(stride"+(i+1)+"-stride"+i+"*d)|0")
         }
       }
   
@@ -289,20 +243,8 @@ function generateMesher(order, pre, post, skip, merge, append, num_options, opti
     tmp_proc = Function.apply(undefined, ["pre_func", "post_func", "skip_func", "merge_func", "append_func"].concat(args))
     proc = tmp_proc.bind(undefined, pre, post, skip, merge, append)
   }
-
-  //Wrap in a helper func to handle typed array allocation and unpacking
-  switch(num_options) {
-    case 0:
-      return wrap_0(proc)
-    case 1:
-      return wrap_1(proc)
-    case 2:
-      return wrap_2(proc)
-    case 3:
-      return wrap_3(proc)
-    default:
-      return wrap_n(proc)
-  }
+  
+  return wrap(proc, num_options)
 }
 
 //Default stuff

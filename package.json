@@ -11,13 +11,15 @@
     "inlinify": "~0.0.3",
     "ndarray": "~0.2.4",
     "typedarray-pool": "~0.1.1",
-    "uniq": "~0.0.2"
+    "uniq": "~0.0.2",
+    "iota-array": "0.0.0"
   },
   "devDependencies": {
-    "ndarray-pack": "~0.0.1"
+    "ndarray-pack": "~0.0.1",
+    "tape": "~1.0.4"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tap test/*.js"
   },
   "repository": {
     "type": "git",
