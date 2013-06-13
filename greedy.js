@@ -4,7 +4,6 @@ var ndarray = require("ndarray")
 var pool = require("typedarray-pool")
 var inline = require("inlinify")
 var uniq = require("uniq")
-var genericSlice = require("generic-slice")
 var iota = require("iota-array")
 
 function wrap(proc, num_opts) {
