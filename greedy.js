@@ -175,7 +175,7 @@ function generateMesher(order, pre, post, skip, merge, append, num_options, opti
         }
         
           //Check if we can merge this voxel
-          code.push("if(visited[u_ptr]) { console.log('here1'); break j"+i+"_loop; }")
+          code.push("if(visited[u_ptr]) { break j"+i+"_loop; }")
           code.push("val=data[b_ptr]")
           code.push(skip_macro.body)
           code.push("if("+skip_macro.return_variable+") { break j"+i+"_loop; }")

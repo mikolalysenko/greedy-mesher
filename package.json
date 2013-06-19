@@ -15,7 +15,12 @@
   },
   "devDependencies": {
     "ndarray-pack": "~0.0.1",
-    "tape": "~1.0.4"
+    "tape": "~1.0.4",
+    "compare": "0.0.1",
+    "ndarray": "~0.2.4",
+    "aabb-2d": "0.0.0",
+    "aabb-3d": "0.0.0",
+    "ndarray-fill": "0.0.0"
   },
   "scripts": {
     "test": "tap test/*.js"
