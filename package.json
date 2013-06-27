@@ -1,6 +1,6 @@
 {
   "name": "greedy-mesher",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Greedy mesh compiler",
   "main": "greedy.js",
   "directories": {
@@ -8,19 +8,20 @@
   },
   "dependencies": {
     "inlinify": "~0.0.3",
-    "ndarray": "~0.2.4",
+    "ndarray": "~1.0.0",
     "typedarray-pool": "~0.1.1",
     "uniq": "~0.0.2",
     "iota-array": "0.0.0"
   },
   "devDependencies": {
-    "ndarray-pack": "~0.0.1",
+    "ndarray-pack": "~1.0.1",
     "tape": "~1.0.4",
-    "compare": "0.0.1",
+    "compare": "~0.0.1",
     "ndarray": "~0.2.4",
-    "aabb-2d": "0.0.0",
-    "aabb-3d": "0.0.0",
-    "ndarray-fill": "0.0.0"
+    "aabb-2d": "~0.0.0",
+    "aabb-3d": "~0.0.0",
+    "ndarray-fill": "~0.1.0",
+    "zeros": "0.0.0"
   },
   "scripts": {
     "test": "tap test/*.js"

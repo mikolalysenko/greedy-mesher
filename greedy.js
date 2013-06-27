@@ -1,6 +1,5 @@
 "use strict"
 
-var ndarray = require("ndarray")
 var pool = require("typedarray-pool")
 var inline = require("inlinify")
 var uniq = require("uniq")
@@ -8,16 +7,16 @@ var iota = require("iota-array")
 
 function wrap(proc, num_opts) {
   var opts = iota(num_opts).map(function(i) { return "opt" + i })
-  var args = [ "proc", "ndarray", "pool", "array" ]
+  var args = [ "proc", "pool", "array" ]
   var body = [
-    "var size = ndarray.size(array)",
+    "var size = array.size",
     "var visited = pool.mallocUint8(size)",
     "var result = proc(array.data, array.shape, array.stride, array.offset, visited, size" + (num_opts > 0 ? ","+opts.join(",")  : "") + ")",
     "pool.freeUint8(visited)",
     "return result"
   ].join("\n")
   var func = Function.apply(undefined, [].concat(args).concat(opts).concat([body]))
-  return func.bind(undefined, proc, ndarray, pool)
+  return func.bind(undefined, proc, pool)
 }
 
 function generateMesher(order, pre, post, skip, merge, append, num_options, options) {

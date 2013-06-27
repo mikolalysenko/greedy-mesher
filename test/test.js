@@ -6,6 +6,7 @@ var fill = require("ndarray-fill")
 var aabb2d = require("aabb-2d")
 var aabb3d = require("aabb-3d")
 var test = require("tape")
+var zeros = require("zeros")
 
 var mesher = compileMesher({
   order: [0, 1],
@@ -56,7 +57,7 @@ function noise(x, y) {
 }
 
 ;[circle, rect, noise].map(function(filler) {
-  var x = ndarray.zeros([40, 40])
+  var x = zeros([40, 40])
   return [fill(x, filler), filler]
 }).forEach(function(layout) {
   var grid = layout[0]
@@ -122,7 +123,7 @@ function noise3d(x, y) {
 }
 
 ;[sphere, cuboid, noise3d].map(function(filler) {
-  var x = ndarray.zeros([32, 32, 32])
+  var x = zeros([32, 32, 32])
   return [fill(x, filler), filler]
 }).forEach(function(layout) {
   var grid = layout[0]
