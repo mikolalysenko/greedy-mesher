@@ -96,9 +96,9 @@ function generateMesher(order, skip, merge, append, num_options, options, useGet
           code.push("if(visited[u_ptr]) { break j"+i+"_loop; }")
         
           if(useGetter) {
-            code.push("val=data[b_ptr]")
-          } else {
             code.push("val=data.get(b_ptr)")
+          } else {
+            code.push("val=data[b_ptr]")
           }
         
           if(skip && merge) {
