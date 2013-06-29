@@ -1,13 +1,12 @@
 {
   "name": "greedy-mesher",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Greedy mesh compiler",
   "main": "greedy.js",
   "directories": {
     "test": "test"
   },
   "dependencies": {
-    "inlinify": "~0.0.3",
     "ndarray": "~1.0.0",
     "typedarray-pool": "~0.1.1",
     "uniq": "~0.0.2",

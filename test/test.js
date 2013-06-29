@@ -8,18 +8,23 @@ var aabb3d = require("aabb-3d")
 var test = require("tape")
 var zeros = require("zeros")
 
-var mesher = compileMesher({
+var mesher_c = compileMesher({
   order: [0, 1],
-  pre: function() {
-    this.result = []
+  extraArgs: 1,
+  skip: function() {
+    return false
   },
-  append: function(lo_x, lo_y, hi_x, hi_y, val) {
-    this.result.push([[lo_x, lo_y], [hi_x, hi_y], val])
+  append: function(lo_x, lo_y, hi_x, hi_y, val, result) {
+    result.push([[lo_x, lo_y], [hi_x, hi_y], val])
   },
-  post: function() {
-    return this.result
-  }
+  debug: true
 })
+
+function mesher(array) {
+  var result = []
+  mesher_c(array, result)
+  return result
+}
 
 test("greedy-mesher", function(t) {
 
@@ -130,18 +135,21 @@ function noise3d(x, y) {
   var generator = layout[1]
   var name = generator.name
 
-  var mesher = compileMesher({
+  var mesher_c = compileMesher({
     order: [0, 1, 2],
-    pre: function() {
-      this.result = []
+    extraArgs: 1,
+    skip: function() {
+      return false
     },
-    append: function(lo_x, lo_y, lo_z, hi_x, hi_y, hi_z, val) {
-      this.result.push([[lo_x, lo_y, lo_z], [hi_x, hi_y, hi_z], val])
-    },
-    post: function() {
-      return this.result
+    append: function(lo_x, lo_y, lo_z, hi_x, hi_y, hi_z, val, result) {
+      result.push([[lo_x, lo_y, lo_z], [hi_x, hi_y, hi_z], val])
     }
   })
+  function mesher(array) {
+    var result = []
+    mesher_c(array, result)
+    return result
+  }
 
   test(name + ': no overlapping voxels', function(t) {
     var mesh = mesher(grid).map(function(voxel) {
