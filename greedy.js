@@ -15,6 +15,9 @@ function wrap(proc, num_opts) {
     "pool.freeUint8(visited)",
     "return result"
   ].join("\n")
+  
+  console.log("WRAPPER:\n\n", args, opts, body)
+  
   var func = Function.apply(undefined, [].concat(args).concat(opts).concat([body]))
   return func.bind(undefined, proc, pool)
 }
@@ -147,6 +150,7 @@ function generateMesher(order, pre, post, skip, merge, append, num_options, opti
   code.push(pre_macro.body)
   
   //Zero out visited map
+  
   code.push("for(v_ptr=0,i=0;i<count;++i) {")
     code.push("visited[i]=0")
   code.push("}")
@@ -241,6 +245,8 @@ function generateMesher(order, pre, post, skip, merge, append, num_options, opti
     tmp_proc = Function.apply(undefined, ["pre_func", "post_func", "skip_func", "merge_func", "append_func"].concat(args))
     proc = tmp_proc.bind(undefined, pre, post, skip, merge, append)
   }
+  
+  console.log(args)
   
   return wrap(proc, num_options)
 }
