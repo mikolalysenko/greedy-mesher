@@ -10,8 +10,8 @@ var compileMesher = require("greedy-mesher")
 var mesher = compileMesher({
   extraArgs: 1,
   order: [1, 0],
-  append: function(lo_x, lo_y, hi_x, hi_y, val, array) {
-    this.result.push([[lo_x, lo_y], [hi_x, hi_y]])
+  append: function(lo_x, lo_y, hi_x, hi_y, val, array, result) {
+    result.push([[lo_x, lo_y], [hi_x, hi_y]])
   }
 })
 
@@ -21,7 +21,8 @@ var test_array = require("ndarray-pack")(
  [0, 1, 1, 0],
  [0, 0, 0, 0]])
 
-console.log(mesher(test_array))
+var result = []
+mesher(test_array, result)
 ```
 
 ## Install

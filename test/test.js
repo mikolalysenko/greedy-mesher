@@ -16,8 +16,7 @@ var mesher_c = compileMesher({
   },
   append: function(lo_x, lo_y, hi_x, hi_y, val, result) {
     result.push([[lo_x, lo_y], [hi_x, hi_y], val])
-  },
-  debug: true
+  }
 })
 
 function mesher(array) {
@@ -42,6 +41,37 @@ test("greedy-mesher", function(t) {
     [[1,1], [3,3], 1],
     [[3,1], [4,4], 0],
     [[1,3], [3,4], 0]
+  ])
+
+  t.end()
+})
+
+test("skip-voxels", function(t) {
+
+  var mesher_c = compileMesher({
+    order: [0, 1],
+    extraArgs: 1,
+    append: function(lo_x, lo_y, hi_x, hi_y, val, result) {
+      result.push([[lo_x, lo_y], [hi_x, hi_y], val])
+    }
+  })
+
+  function mesher(array) {
+    var result = []
+    mesher_c(array, result)
+    return result
+  }
+  
+  var test_array = require("ndarray-pack")(
+    [[0, 0, 0, 0],
+     [0, 1, 1, 0],
+     [0, 1, 1, 0],
+     [0, 0, 0, 0]])
+
+  var mesh = mesher(test_array)
+
+  t.same(mesh, [
+    [[1,1], [3,3], 1]
   ])
 
   t.end()

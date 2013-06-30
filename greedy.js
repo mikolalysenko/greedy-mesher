@@ -39,9 +39,6 @@ function generateMesher(order, skip, merge, append, num_options, options, useGet
     append_args[2*d+1+i] = "opt"+i
   }
 
-  //Type coerce offset to unsigned int
-  code.push("offset>>>=0")
-  
   //Unpack stride and shape arrays into variables
   for(var i=0; i<d; ++i) {
     code.push(["var stride",i,"=stride[",order[i],"]|0,shape",i,"=shape[",order[i],"]|0"].join(""))
@@ -59,7 +56,7 @@ function generateMesher(order, skip, merge, append, num_options, options, useGet
   }
   
   //Initialize pointers
-  code.push("var a_ptr=0,b_ptr=0,u_ptr=0,v_ptr=0,i=0,d=0,val=0,oval=0")
+  code.push("var a_ptr=offset>>>0,b_ptr=0,u_ptr=0,v_ptr=0,i=0,d=0,val=0,oval=0")
   
   //Zero out visited map
   code.push("for(;i<count;++i){visited[i]=0}")
@@ -69,6 +66,7 @@ function generateMesher(order, skip, merge, append, num_options, options, useGet
     code.push(["for(i",i,"=0;i",i,"<shape",i,";++i",i,"){"].join(""))
   }
   code.push("if(!visited[v_ptr]){")
+  
     if(useGetter) {
       code.push("val=data.get(a_ptr)")
     } else {
@@ -79,7 +77,8 @@ function generateMesher(order, skip, merge, append, num_options, options, useGet
       code.push("if(!skip(val)){")
     } else {
       code.push("if(val!==0){")
-    }  
+    }
+  
       //Save val to oval
       code.push("oval = val")
   
