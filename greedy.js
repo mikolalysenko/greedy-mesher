@@ -4,22 +4,8 @@ var pool = require("typedarray-pool")
 var uniq = require("uniq")
 var iota = require("iota-array")
 
-function wrap(proc, num_opts) {
-  var opts = iota(num_opts).map(function(i) { return "opt" + i })
-  var args = [ "proc", "pool", "array" ]
-  var body = [
-    "var size = array.size",
-    "var visited = pool.mallocUint8(size)",
-    "var result = proc(array.data, array.shape, array.stride, array.offset, visited, size" + (num_opts > 0 ? ","+opts.join(",")  : "") + ")",
-    "pool.freeUint8(visited)",
-    "return result"
-  ].join("\n")
-  var func = Function.apply(undefined, [].concat(args).concat(opts).concat([body]))
-  return func.bind(undefined, proc, pool)
-}
-
 function generateMesher(order, skip, merge, append, num_options, options, useGetter) {
-  var code = ["'use strict'"]
+  var code = []
   var d = order.length
   var i, j, k
   
@@ -40,6 +26,7 @@ function generateMesher(order, skip, merge, append, num_options, options, useGet
   }
 
   //Unpack stride and shape arrays into variables
+  code.push("var data=array.data,offset=array.offset,shape=array.shape,stride=array.stride")
   for(var i=0; i<d; ++i) {
     code.push(["var stride",i,"=stride[",order[i],"]|0,shape",i,"=shape[",order[i],"]|0"].join(""))
     if(i > 0) {
@@ -57,6 +44,10 @@ function generateMesher(order, skip, merge, append, num_options, options, useGet
   
   //Initialize pointers
   code.push("var a_ptr=offset>>>0,b_ptr=0,u_ptr=0,v_ptr=0,i=0,d=0,val=0,oval=0")
+  
+  //Initialize count
+  code.push("var count=" + iota(d).map(function(i) { return "shape"+i}).join("*"))
+  code.push("var visited=mallocUint8(count)")
   
   //Zero out visited map
   code.push("for(;i<count;++i){visited[i]=0}")
@@ -150,33 +141,39 @@ function generateMesher(order, skip, merge, append, num_options, options, useGet
     code.push("}")
   }
   
+  code.push("freeUint8(visited)")
+  
   if(options.debug) {
     console.log("GENERATING MESHER:")
     console.log(code.join("\n"))
   }
   
   //Compile procedure
-  var args = ["append", "data", "shape", "stride", "offset", "visited", "count" ].concat(opt_args)
+  var args = ["append", "mallocUint8", "freeUint8"]
   if(merge) {
     args.unshift("merge")
   }
   if(skip) {
     args.unshift("skip")
   }
-  args.push(code.join("\n"))
+  
+  //Build wrapper
+  var local_args = ["array"].concat(opt_args)
+  var funcName = "greedyMesher" + order.join("s") + (skip ? "skip" : "") + (merge ? "merge" : "")
+  var gen_body = ["'use strict';function ", funcName, "(", local_args.join(","), "){", code.join("\n"), "};return ", funcName].join("")
+  args.push(gen_body)
   var proc = Function.apply(undefined, args)
+  //console.log(proc + "")
   
   if(skip && merge) {
-    proc = proc.bind(undefined, skip, merge, append)
+    return proc(skip, merge, append, pool.mallocUint8, pool.freeUint8)
   } else if(skip) {
-    proc = proc.bind(undefined, skip, append)
+    return proc(skip, append, pool.mallocUint8, pool.freeUint8)
   } else if(merge) {
-    proc = proc.bind(undefined, merge, append)
+    return proc(merge, append, pool.mallocUint8, pool.freeUint8)
   } else {
-    proc = proc.bind(undefined, append)
+    return proc(append, pool.mallocUint8, pool.freeUint8)
   }
-  
-  return wrap(proc, num_options)
 }
 
 //The actual mesh compiler
