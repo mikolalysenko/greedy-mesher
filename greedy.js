@@ -159,11 +159,10 @@ function generateMesher(order, skip, merge, append, num_options, options, useGet
   
   //Build wrapper
   var local_args = ["array"].concat(opt_args)
-  var funcName = "greedyMesher" + order.join("s") + (skip ? "skip" : "") + (merge ? "merge" : "")
+  var funcName = ["greedyMesher", d, "d_ord", order.join("s") , (skip ? "skip" : "") , (merge ? "merge" : "")].join("")
   var gen_body = ["'use strict';function ", funcName, "(", local_args.join(","), "){", code.join("\n"), "};return ", funcName].join("")
   args.push(gen_body)
   var proc = Function.apply(undefined, args)
-  //console.log(proc + "")
   
   if(skip && merge) {
     return proc(skip, merge, append, pool.mallocUint8, pool.freeUint8)
