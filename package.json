@@ -1,15 +1,15 @@
 {
   "name": "greedy-mesher",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Greedy mesh compiler",
   "main": "greedy.js",
   "directories": {
     "test": "test"
   },
   "dependencies": {
-    "typedarray-pool": "~0.1.1",
-    "uniq": "~0.0.2",
-    "iota-array": "0.0.0"
+    "typedarray-pool": "^1.0.0",
+    "uniq": "^1.0.0",
+    "iota-array": "^1.0.0"
   },
   "devDependencies": {
     "ndarray": "~1.0.5",
