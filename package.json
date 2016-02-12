@@ -7,9 +7,9 @@
     "test": "test"
   },
   "dependencies": {
-    "typedarray-pool": "^1.0.0",
-    "uniq": "^1.0.0",
-    "iota-array": "^1.0.0"
+    "iota-array": "^1.0.0",
+    "typedarray-pool": "^1.1.0",
+    "uniq": "^1.0.1"
   },
   "devDependencies": {
     "ndarray": "~1.0.5",
