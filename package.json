@@ -1,6 +1,6 @@
 {
   "name": "greedy-mesher",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Greedy mesh compiler",
   "main": "greedy.js",
   "directories": {
